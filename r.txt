@@ -1,0 +1,153 @@
+randomForest:
+
+library(randomForest)
+data(iris)
+set.seed(123) # Set seed for reproducibility
+sample_indices <- sample(1:nrow(iris), 0.7 * nrow(iris)) # 70% for training
+train_data <- iris[sample_indices, ]
+test_data <- iris[-sample_indices, ]
+
+random_forest_model <- randomForest(Species ~ ., data = train_data)
+predicted_classes <- predict(random_forest_model, newdata = test_data)
+
+conf_matrix <- table(predicted_classes, test_data$Species)
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+precision <- conf_matrix[2, 2] / sum(conf_matrix[, 2])
+recall <- conf_matrix[2, 2] / sum(conf_matrix[2, ])
+f1_score <- 2 * (precision * recall) / (precision + recall)
+-----------------------------------------------------------------------------------------------------
+Decision Tree:
+rpart
+# Fit a Decision Tree classifier
+decision_tree_model <- rpart(Species ~ ., data = train_data, method = "class")
+predicted_classes <- predict(decision_tree_model, newdata = test_data, type = "class")
+-----------------------------------------------------------------------------------------------------
+Naive Bayes:
+e1071
+# Fit a Naive Bayes classifier
+naive_bayes_model <- naiveBayes(Species ~ ., data = train_data)
+predicted_classes <- predict(naive_bayes_model, newdata = test_data)
+-----------------------------------------------------------------------------------------------------
+KNN:
+class
+# k-Nearest Neighbors (kNN) classification
+k <- 3 # Set the number of neighbors
+# Predict the class of test_data using kNN
+predicted_classes <- knn(train = train_data[, 1:4], test = test_data[, 1:4], cl =
+train_data$Species, k = k)
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+Regressionmodel:
+
+model <- lm(mpg ~ wt, data = train_data)
+predictions <- predict(model, newdata = test_data)
+
+mse <- mean((predictions - test_data$mpg)^2)
+rmse <- sqrt(mse)
+r_squared <- 1 - (sum((test_data$mpg - predictions)^2) / sum((test_data$mpg -
+mean(test_data$mpg))^2))
+-----------------------------------------------------------------------------------------------------
+Multiple regression:
+
+model <- lm(mpg ~ wt + hp + cyl, data = train_data)
+# Summary of the model
+summary(model)
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data)
+-----------------------------------------------------------------------------------------------------
+Regressionmodel 2:
+
+# Build a linear regression model
+model <- lm(mpg ~ wt + hp, data = train_data)
+predictions <- predict(model, newdata = test_data)
+-----------------------------------------------------------------------------------------------------
+SVM:
+
+install.packages("caret")
+install.packages("e1071")
+
+library(caret)
+library(e1071)
+
+# Split the data into training (70%) and testing (30%) sets
+trainIndex <- createDataPartition(iris$Species, p = 0.7, list = FALSE, times = 1)
+trainData <- iris[trainIndex, ]
+testData <- iris[-trainIndex, ]
+# Build an SVM model
+svm_model <- svm(Species ~ ., data = trainData)
+# Make predictions on the test set
+predictions <- predict(svm_model, newdata = testData)
+# Evaluate the model
+print(confusionMatrix(predictions, testData$Species))
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+Correlationand covariance:
+
+# Install corrplot package
+install.packages("corrplot")
+# Load necessary libraries
+library(corrplot)
+# Load the Iris dataset
+data(iris)
+# a. Find the correlation matrix
+cor_matrix <- cor(iris[, 1:4])
+# Print the correlation matrix
+print(cor_matrix)
+# b. Plot the correlation plot
+corrplot(cor_matrix, method = "color", type = "upper", addrect = 3)
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+Factor Analysis:
+# Install and load necessary packages
+#install.packages("psych")
+library(psych)
+# Load the dataset
+data(mtcars)
+# Select relevant variables for factor analysis
+# For this example, I'll use a subset of variables
+my_data <- mtcars[, c("mpg", "disp", "hp", "drat", "wt")]
+# Check the structure of the data
+str(my_data)
+# Perform factor analysis
+factor_result <- fa(my_data, nfactors = 2, rotate = "varimax")
+# Print the factor analysis results
+print(factor_result)
+# Plot eigenvalues to determine the number of factors
+eigenvalues <- factor_result$values
+plot(1:length(eigenvalues), eigenvalues, type = "b",
+ main = "Scree Plot", xlab = "Factor", ylab = "Eigenvalue")
+-----------------------------------------------------------------------------------------------------
+Principal Component
+Analysis:
+
+install.packages(c("ggplot2", "stats"))
+data(USArrests)
+# View the first few rows of the dataset
+head(USArrests)
+# Standardize the features (mean=0, sd=1)
+scaled_data <- scale(USArrests)
+# Perform PCA
+pca_result <- prcomp(scaled_data)
+# Summary of the PCA
+print(summary(pca_result))
+# Access the loadings (weights) of each variable on each principal component
+loadings_matrix <- pca_result$rotation
+print(loadings_matrix)
+# Access the scores of each data point on each principal component
+scores <- as.data.frame(pca_result$x)
+print(head(scores))
+# Scree plot to visualize the variance explained by each principal component
+png(filename = "scree_plot.png", width = 800, height = 400) # Adjust width and height as
+needed
+par(mar = c(5, 5, 2, 2)) # Adjust the margins
+plot(1:4, pca_result$sdev^2 / sum(pca_result$sdev^2), type = "b",
+ main = "Scree Plot", xlab = "Principal Component", ylab = "Proportion of Variance
+Explained")
+dev.off()
+# Biplot to visualize the data points and loadings
+png(filename = "biplot.png", width = 800, height = 800) # Adjust width and height as needed
+par(mar = c(5, 5, 2, 2)) # Adjust the margins
+biplot(pca_result)
+dev.off()
+
+
